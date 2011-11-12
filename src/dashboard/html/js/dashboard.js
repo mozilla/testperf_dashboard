@@ -488,6 +488,81 @@ function populate_fields(){
   }); //End .getJSON()
 }
 
+function showXbrowserStartupCharts(params, dname, pname, wname) {
+
+  show_loading(); //Show loading div to keep user happy
+
+  //Build Resource URL
+  var resourceURL = '/api/xbrowserstartup/?' + 
+    Object.keys(params).filter(function(name) {
+      return (params[name] !== "all");
+    }).map(function(name) {
+      return name + "=" + params[name];
+    }).join("&");
+  
+  var test = params.test + "-" + params.style;
+  var graphTitle = "";
+  var jsontestname = "";
+
+  switch (test) {
+    case "local-onload-warm":
+      graphtitle = "Local S1 (Blank) Warm";
+      break;
+    case "local-twitter-warm":
+      graphtitle = "Local S2 (Twitter) Warm";
+      break;
+    case "remote-onload-warm":
+      graphtitle = "Remote S1 (Blank) Warm";
+      break;
+    case "remote-twitter-warm":
+      graphtitle = "Remote S2 (Twitter) Warm";
+      break;
+    default:
+      alert("Unrecognized graph name, honestly you should never see this");
+      return;
+  }
+  
+  var data = $.getJSON(resourceURL);
+  // TODO: data.status keeps coming back as undefined, but in the output spew
+  // on the server console, it quite obviously is returning a 200.
+  // If I debug it with firebug, it returns a 200.  Not sure what's happening
+  // here.
+  //if (data.status != 200) {
+  //  alert("Error Getting Data, please file a bug Product Testing, Component General");
+  //  return;
+  //}
+  data = JSON.parse(data.responseText);
+  var chart;
+  jQuery(document).ready(function() {
+    chart = new Highcharts.Chart({
+      chart: {
+        renderTo: 'container',
+        type: 'spline'
+      },
+      title: {
+        text: graphtitle
+      },
+      subtitle: {
+        text: ''
+      },
+      xAxis: {
+        type: 'datetime',
+        dateTimeLabelFormats: {
+          month: '%b %e',
+          year: '%Y'
+       }
+     },
+     yAxis: {
+       title: {
+         text: 'Milliseconds'
+       },
+       min: 0
+     },
+     series: data.series
+    });
+  });
+}
+
 $(function() {
   var router = Router({
     '/': {
@@ -524,6 +599,25 @@ $(function() {
         $('#floatright').html(ich.mochitest_rightpanel());        
         $('#nav li').removeClass('active');
         $('#nav_mochitest').addClass('active');
+      }
+    },
+    '/xbrowserstartup': {
+      on: function() {
+        $('#floatleft').html(ich.xbrowserstartup_leftpanel());
+        $('#floatright').html(ich.xbrowserstartup_rightpanel());
+        $('#nav li').removeClass('active');
+        $('#nav_xbrowserstartup').addClass('active');
+
+        // Get form request and draw graph
+        $('#data-selector').submit(function(event){
+          event.preventDefault();
+          var values = {};
+          $.each($('#data-selector').serializeArray(), function(i, field) {
+            values[field.name] = field.value;
+          });
+          
+          showXbrowserStartupCharts(values);
+        });
       }
     }
   }).init('/');

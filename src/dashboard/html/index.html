@@ -18,6 +18,8 @@
   <ul id="nav">
     <li id="nav_diskio"><a href="#/diskio">Disk I/O</a></li>
     <li id="nav_mochitest"><a href="#/mochitest">Mochitest metrics</a></li>
+    <li id="nav_xbrowserstartup"><a href="#/xbrowserstartup">Mobile Cross
+        Browser Startup</a></li>
   </ul>
 </div>
 <div id="wrapper">
@@ -108,5 +110,40 @@
   <div id="content-main"><p>This is a placeholder template for the results of mdas's mochitest performance metrics</p></div>
 </script>
 
+<script id="xbrowserstartup_leftpanel" type="text/html">
+  <div id="content-menu">
+    <div class="formholder">
+      <form id="data-selector">
+        <label>Test: </label>
+        <select name="test">
+            <option value="local-onload">Local Blank Page (local-s1)</option>
+            <option value="remote-onload">Remote Blank Page (remote-s1)</option>
+            <option value="local-twitter">Local Twitter Page (local-s2)</option>
+            <option value="remote-twitter">Remote Twitter Page (remote-s2)</option>
+        </select>
+        <br/>
+        <label>Style: </label>
+        <select name="style">
+            <option value="warm">Warm Start</option>
+            <!--<option value="cold">Cold Start</option>-->
+        </select>
+        <br/>
+        <label>Dates: </label>
+        <select name="date">
+            <option value="1w">Previous Week</option>
+            <option value="2w">Previous 2 Weeks</option>
+            <option value="1m">Previous Month</option>
+            <option value="all">All - get coffee :)</option>
+        </select>
+        <br/>
+        <input type="submit" name="submit" value="submit"/>
+      </form>
+    </div>
+  </div> 
+</script>
+
+<script id="xbrowserstartup_rightpanel" type="text/html">
+    <div id="container"</div>
+</script>
 
 </html>
