@@ -105,7 +105,7 @@ class CrossBrowserStartupHandler():
                         # Add our point to the series data
                         series[idx]["data"].append([date, avg, phone_browser])
 
-        retval = {"x-series": xseries, "series": series}
+        retval = {"xseries": xseries, "series": series}
         #print retval
         return retval
 

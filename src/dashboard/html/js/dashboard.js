@@ -531,6 +531,10 @@ function showXbrowserStartupCharts(params, dname, pname, wname) {
   //  alert("Error Getting Data, please file a bug Product Testing, Component General");
   //  return;
   //}
+  
+  // TODO: If I take this alert out I get a JSON.parse: error unexpected character.
+  //       If I leave it in, it works.
+  alert("Figure out why this is necessary, until then click OK");  
   data = JSON.parse(data.responseText);
   var chart;
   jQuery(document).ready(function() {
