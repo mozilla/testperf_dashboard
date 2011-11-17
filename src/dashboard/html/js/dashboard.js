@@ -697,7 +697,7 @@ function showXbrowserStartupCharts(params, dname, pname, wname) {
   show_loading(); //Show loading div to keep user happy
 
   //Build Resource URL
-  var resourceURL = '/api/xbrowserstartup/?' + 
+  var resourceURL = 'api/xbrowserstartup/?' + 
     Object.keys(params).filter(function(name) {
       return (params[name] !== "all");
     }).map(function(name) {
