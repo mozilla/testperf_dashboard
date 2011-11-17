@@ -58,6 +58,7 @@ class CrossBrowserStartupHandler():
     def GET(self):
         params,body = templeton.handlers.get_request_parms()
         data = defaultdict(lambda: defaultdict(lambda: defaultdict(lambda:defaultdict(list))))
+        timestamps = defaultdict(lambda: defaultdict(lambda: defaultdict(lambda:defaultdict(list))))
 
         es = ESLib('elasticsearch1.metrics.sjc1.mozilla.com:9200','xbrowserstartup', 'perfdata')
 
@@ -81,6 +82,7 @@ class CrossBrowserStartupHandler():
             for result in results:
                 perfdata = result['perfdata'][0]
                 data[result['revision']][perfdata['phone']][perfdata['browser']][perfdata['type']].append(perfdata['result'])
+                timestamps[result['revision']][perfdata['phone']][perfdata['browser']][perfdata['type']].append(result['starttime'])
 
             # Get averages for each testrun for each browser from this day
             # Make a point from (date, avg of testrun on phone-browser, phone-browser)
@@ -88,22 +90,39 @@ class CrossBrowserStartupHandler():
                 for phone in data[rev]:
                     for browser in data[rev][phone]:
                         phone_browser = phone + "-" + browser
+                        
+                        # If we do not have data for this revision, then skip
+                        # it.
+                        if len(data[rev][phone][browser][testname]) == 0:
+                            continue
+
                         # If our phone browser combo not in the series add it.
                         # If it is in the list return the index.
                         # Either way we get the index of the phone_browser
                         # combo in the list.
                         idx = self.ensure_in_series(phone_browser, series)
 
-                        # Average our test scores for this phone-browser in
-                        # the given revision
+                        # Get the timestamp from our parallel array - note that
+                        # since we average our results we only need one timestamp
+                        # from the test for this browser, on this phone, on this revision.
+                        tstamp = timestamps[rev][phone][browser][testname][0]
+                        
+                        # Debugging code
                         print "------------"
+                        print "DATE: %s" % datetime.fromtimestamp(float(tstamp)).isoformat()
                         print "REV: %s" % rev
                         print "PHONE: %s" % phone
                         print "BROWSER: %s" % browser
                         print "TESTARRAY %s" % data[rev][phone][browser][testname]
                         avg = self.average(data[rev][phone][browser][testname])
-                        # Add our point to the series data
-                        series[idx]["data"].append([date, avg, phone_browser])
+                        if avg == 0:
+                            # Don't add 0's if we are missing data, just skip that point
+                            continue
+
+                        # Add our point to the series data - our tstamp is in 
+                        # secs since EPOC, we need it to be ms since epoc for charts,
+                        # so multiply by 1000.
+                        series[idx]["data"].append([tstamp * 1000, avg, phone_browser])
 
         retval = {"xseries": xseries, "series": series}
         #print retval

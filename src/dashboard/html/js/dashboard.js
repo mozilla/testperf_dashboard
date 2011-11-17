@@ -488,6 +488,15 @@ function populate_fields(){
   }); //End .getJSON()
 }
 
+function parseDate(datestr) {
+  var parsed = datestr.split("-");
+  var year = parsed[0];
+  var month = parsed[1] - 1; //Javascript months index from 0 instead of 1
+  var day = parsed[2];
+
+  return Date.UTC(year, month, day);
+}
+
 function showXbrowserStartupCharts(params, dname, pname, wname) {
 
   show_loading(); //Show loading div to keep user happy
@@ -499,6 +508,7 @@ function showXbrowserStartupCharts(params, dname, pname, wname) {
     }).map(function(name) {
       return name + "=" + params[name];
     }).join("&");
+  
   
   var test = params.test + "-" + params.style;
   var graphTitle = "";
@@ -522,48 +532,36 @@ function showXbrowserStartupCharts(params, dname, pname, wname) {
       return;
   }
   
-  var data = $.getJSON(resourceURL);
-  // TODO: data.status keeps coming back as undefined, but in the output spew
-  // on the server console, it quite obviously is returning a 200.
-  // If I debug it with firebug, it returns a 200.  Not sure what's happening
-  // here.
-  //if (data.status != 200) {
-  //  alert("Error Getting Data, please file a bug Product Testing, Component General");
-  //  return;
-  //}
-  
-  // TODO: If I take this alert out I get a JSON.parse: error unexpected character.
-  //       If I leave it in, it works.
-  alert("Figure out why this is necessary, until then click OK");  
-  data = JSON.parse(data.responseText);
-  var chart;
-  jQuery(document).ready(function() {
-    chart = new Highcharts.Chart({
-      chart: {
-        renderTo: 'container',
-        type: 'spline'
-      },
-      title: {
-        text: graphtitle
-      },
-      subtitle: {
-        text: ''
-      },
-      xAxis: {
-        type: 'datetime',
-        dateTimeLabelFormats: {
-          month: '%b %e',
-          year: '%Y'
-       }
-     },
-     yAxis: {
-       title: {
-         text: 'Milliseconds'
-       },
-       min: 0
-     },
-     series: data.series
-    });
+  var data = $.getJSON(resourceURL, function(data) {
+
+      var chart;
+      jQuery(document).ready(function() {
+        chart = new Highcharts.Chart({
+          chart: {
+            renderTo: 'container',
+            type: 'spline'
+          },
+          title: {
+            text: graphtitle
+          },
+          subtitle: {
+            text: ''
+          },
+          xAxis: {
+            type: 'datetime',
+            dateTimeLabelFormats: {
+              day: '%b-%e'
+           }
+         },
+         yAxis: {
+           title: {
+             text: 'Milliseconds'
+           },
+           min: 0
+         },
+         series: data.series
+        });
+      });
   });
 }
 
